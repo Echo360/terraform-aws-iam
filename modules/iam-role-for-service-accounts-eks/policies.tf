@@ -430,6 +430,7 @@ data "aws_iam_policy_document" "karpenter_controller" {
       "ec2:CreateLaunchTemplate",
       "ec2:CreateFleet",
       "ec2:CreateTags",
+      "ec2:DeleteLaunchTemplate",
       "ec2:DescribeLaunchTemplates",
       "ec2:DescribeInstances",
       "ec2:DescribeSecurityGroups",
@@ -437,28 +438,11 @@ data "aws_iam_policy_document" "karpenter_controller" {
       "ec2:DescribeInstanceTypes",
       "ec2:DescribeInstanceTypeOfferings",
       "ec2:DescribeAvailabilityZones",
+      "ec2:RunInstances",
+      "ec2:TerminateInstances",
     ]
 
     resources = ["*"]
-  }
-
-  dynamic "statement" {
-    for_each = toset(var.karpenter_controller_cluster_ids)
-    content {
-      actions = [
-        "ec2:RunInstances",
-        "ec2:TerminateInstances",
-        "ec2:DeleteLaunchTemplate",
-      ]
-
-      resources = ["*"]
-
-      condition {
-        test     = "StringEquals"
-        variable = "ec2:ResourceTag/karpenter.sh/discovery"
-        values   = [statement.value]
-      }
-    }
   }
 
   statement {
